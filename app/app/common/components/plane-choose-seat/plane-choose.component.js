@@ -10,6 +10,13 @@ function PlaneChooseCtrl (CheckIn) { // e.g. (Chat)
     ctrl.reserveSeat = function (seat) {
         ctrl.showSeats = false;
         ctrl.loading = true;
+
+        seat.reserved = true;
+
+        seat.name = CheckIn.currentPassanger.name;
+        seat.balance = CheckIn.currentPassanger.name;
+        seat.paid = false;
+
         CheckIn.modifySeat(seat).then(function (res) {
             console.log(res);
         }).catch(function (err) {

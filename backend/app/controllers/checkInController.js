@@ -26,6 +26,7 @@ exports.add_a_plane = function(req, res) {
         for (var col = 1; col <= planeWidth; col++) {
             var type = Helper.type(row,col,planeWidth, planeLength);
             seats.push({
+                id: mongoose.Types.ObjectId(),
                 nr: Helper.charInAlphabet(col) + "" + row,
                 row : row,
                 col : col,
@@ -82,22 +83,111 @@ exports.list_all_seats = function(req, res) {
 
 // GET /plane/{planeId}/seats/{seatId}
 exports.read_seat = function(req, res) {
-    Seat.findById(req.params.seatId, function(err, seat) {
-        if (err) {
+    Plane.findById(req.params.planeId, function(err, plane) {
+        if (err)
             res.send(err);
-        } else {
-            res.json(seat);
-        }
+
+        var seat = plane.seats.filter(function (s) {
+            return s.id == req.params.seatId;
+        }).pop();
+
+        res.send(seat);
+
     });
 };
 
 exports.update_seat = function(req, res) {
     // Validation
-    Seat.findOneAndUpdate(
-        {_id: req.params.seatId}, req.body, {new: true}, function(err, seat) {
+
+    // Plane.findById(req.params.planeId, function(err, plane) {
+    //     if (err)
+    //         res.send(err);
+    //
+    //     var seat = plane.seats.filter(function (s) {
+    //         return s.id == req.params.seatId;
+    //     }).pop();
+    //
+    //     res.send(plane);
+    //
+    // });
+
+    Plane.findById(req.params.planeId, function(err, plane) {
         if (err)
             res.send(err);
-        res.json(seat);
+
+        var seat = plane.seats.filter(function (s) {
+            return s.id == req.params.seatId;
+        }).pop();
+
+        // validation, is reserved
+        if (seat.reserved) {
+            res.status(500).send('Already reserved');
+        }
+        // Already on plane
+        var found = false;
+        for(var i = 0; i < plane.passengers.length; i++) {
+            if (plane.passengers[i].name == req.name) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            res.status(500).send('Already boarded');
+        }
+
+        // enought money
+        if (req.balance < seat.price) {
+            res.status(500).send('Too poor');
+        }
+
+
+        Plane.findOneAndUpdate(
+            { "_id": req.params.planeId, "seats.id": req.params.seatId },
+            {
+                "$set": {
+                    "seats.$.reserved": req.body.reserved,
+                    "seats.$.paid" : req.body.paid
+                }
+            },
+            function(err,doc) {
+                if (err)
+                    res.send(err);
+                var seat = doc.seats.filter(function (s) {
+                    return s.id == req.params.seatId;
+                }).pop();
+
+
+                // make unreserved after 5 minutes
+                setTimeout(function(){
+                        Plane.findById(req.params.planeId, function(err, plane) {
+                            if (err)
+                                res.send(err);
+
+                            var seat = plane.seats.filter(function (s) {
+                                return s.id == req.params.seatId;
+                            }).pop();
+
+                            if (!seat.paid) {
+                                Plane.findOneAndUpdate(
+                                    { "_id": req.params.planeId, "seats.id": req.params.seatId },
+                                    {
+                                        "$set": {
+                                            "seats.$.reserved": false
+                                        }
+                                    },
+                                    function(err,doc) {
+
+                                    });
+                            }
+
+                        });
+                    }
+                    , 180000);
+
+
+                res.send(seat);
+            }
+        );
     });
 };
 

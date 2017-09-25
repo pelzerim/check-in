@@ -20,6 +20,7 @@ var Passenger = new Schema({
 });
 
 var Seat = new Schema({
+    id: Schema.Types.ObjectId,
     nr: {
         type: String
     },
@@ -37,6 +38,10 @@ var Seat = new Schema({
         default: ['free']
     },
     reserved : {
+        type : Boolean,
+        default: false
+    },
+    paid: {
         type : Boolean,
         default: false
     },

@@ -15,14 +15,12 @@ angular.module('myApp')
             return $http.get(urlBase+'/planes/'+planeId);
         };
 
-
-
         CheckIn.addPlane = function (p) {
             return $http.post(urlBase + '/planes', p);
         };
 
         CheckIn.modifySeat = function (seat) {
-            return $http.put(urlBase + '/planes/' + CheckIn.currentPlane._id + '/seats/' + seat._id + '/', seat);
+            return $http.put(urlBase + '/planes/' + CheckIn.currentPlane._id + '/seats/' + seat.id + '/', seat);
         };
 
         function getRandomPerson() {

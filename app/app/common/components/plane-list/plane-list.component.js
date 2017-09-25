@@ -8,6 +8,7 @@ function PlaneListCtrl (CheckIn) { // e.g. (Chat)
 
     CheckIn.getPlanes().then(function (res) {
         ctrl.planes = res.data;
+        ctrl.errorMessage ="";
     }).catch(function (err) {
         ctrl.errorMessage = "Could not fetch planes, please reload.";
     });
