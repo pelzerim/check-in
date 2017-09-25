@@ -1,6 +1,9 @@
 <h5>Purchase seat</h5>
 <div class="errorMessage"> {{ $ctrl.errorMessage }} </div>
 
+
+<a ng-click="$ctrl.didPay()" ng-show="$ctrl.showSeats">Check me in enywhere</a>
+
 <ul ng-show="$ctrl.showSeats">
     <li ng-repeat="seat in $ctrl.currentPlane.seats">
         {{seat.nr}}: {{ seat.type[0] }} for only {{seat.price}} <a ng-show="!seat.reserved" ng-click="$ctrl.reserveSeat(seat)">Choose seat</a>
@@ -11,3 +14,4 @@
 
 <pay ng-show="$ctrl.showPay" on-did-pay="$ctrl.didPay()"></pay>
 
+<div class="successMessage"> {{ $ctrl.message }} </div>

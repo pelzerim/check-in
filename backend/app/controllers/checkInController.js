@@ -1,11 +1,12 @@
 'use strict';
 
-var mongoose = require('mongoose'),
+var io = require('../../server').io,
+    mongoose = require('mongoose'),
     Plane = mongoose.model('Plane'),
     Passanger = mongoose.model('Passenger'),
     Seat = mongoose.model('Seat'),
     Helper = require("../utility/seatHelpers"),
-    Timer = require("../utility/timer")
+    Timer = require("../utility/timer");
 
 // GET /plane
 exports.list_all_planes = function (req, res) {
@@ -113,11 +114,10 @@ exports.add_passenger = function (req, res) {
             });
             return;
         }
-
-        plane.passengers.push(new Passanger({
-            name: user.name,
-            _id: user._id
-        }));
+        if (!getRandomSeat) {
+            user.balance -= seat.price;
+        }
+        plane.passengers.push(user);
 
 
         plane.save(function (err, plne) {
@@ -251,8 +251,11 @@ exports.update_seat = function (req, res) {
                     });
                     return;
                 }
+
                 Timer.timer(updatedPlane, seat);
                 var newSeat = updatedPlane.seats.id(req.params.seatId);
+
+                io.sockets.emit("plane:"+updatedPlane._id, user._id);
                 res.send(updatedPlane);
             }
         );

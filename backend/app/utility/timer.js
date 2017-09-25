@@ -1,6 +1,9 @@
 var mongoose = require('mongoose'),
     Plane = mongoose.model('Plane'),
-    Seat = mongoose.model('Seat');
+    Seat = mongoose.model('Seat'),
+    app = require("../../server").app,
+    server = require('http').Server(app),
+    io = require('socket.io')(server);
 
 var resevationTimers = {};
 
@@ -9,7 +12,7 @@ exports.killTimer = function (seat) {
 }
 exports.timer = function(plane,seat) {
 
-    function myFunc(arg) {
+    function makeSeatAvailable(arg) {
         Plane.findById(plane._id, function(err, plane) {
             if (err) {
                 console.log("error in timer", err);
@@ -18,7 +21,7 @@ exports.timer = function(plane,seat) {
 
             // Update old seat
             Plane.findOneAndUpdate(
-                {"_id": seat._id, "seats._id": seat._id},
+                {"_id": plane._id, "seats._id": seat._id},
                 {
                     "$set": {
                         "seats.$.reserved": false
@@ -28,9 +31,11 @@ exports.timer = function(plane,seat) {
                     if(err){
                         console.log("error resetting timer", err);
                     }
+                    io.sockets.emit("plane:"+plane._id, {});
+
                 }
             );
         });
     }
-    resevationTimers[seat._id] = setTimeout(myFunc, 180000, 'Seat resevation timer for seat');
+    resevationTimers[seat._id] = setTimeout(makeSeatAvailable, 180000, 'Seat resevation timer for seat');
 };

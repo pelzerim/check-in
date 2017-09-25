@@ -14,9 +14,6 @@ function EmptyCtrl (User, StudentDataOp) { // e.g. (Chat)
 
     ctrl.show = "nothing";
     ctrl.stuff = function() {
-        // var user = new User();
-        // user.firstName = "bla";
-        // user.lastName = "blubb";
     };
 }
 
