@@ -11,9 +11,15 @@ angular.module('main', [])
 function MainCtrl($scope, CheckIn) {
     $scope.currentPlane;
 
-    $scope.currentPassanger = CheckIn.currentPassanger;
+    $scope.$on('user:updated', function(event,data) {
+        $scope.currentPassanger = CheckIn.currentPassanger;
+    });
 
     $scope.showPlane = function () {
         $scope.currentPlane = CheckIn.currentPlane;
-    }
+    };
+
+    $scope.home = function() {
+        $scope.currentPlane = undefined;
+    };
 }

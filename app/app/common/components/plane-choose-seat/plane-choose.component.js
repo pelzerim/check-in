@@ -5,36 +5,36 @@ function PlaneChooseCtrl (CheckIn) { // e.g. (Chat)
     ctrl.currentPlane = CheckIn.currentPlane;
     ctrl.errorMessage = undefined;
     ctrl.showSeats = true;
-    
-    
+    ctrl.mySeat = undefined;
+
     ctrl.reserveSeat = function (seat) {
         ctrl.showSeats = false;
         ctrl.loading = true;
-
         seat.reserved = true;
-
-        seat.name = CheckIn.currentPassanger.name;
-        seat.balance = CheckIn.currentPassanger.name;
-        seat.paid = false;
-
         CheckIn.modifySeat(seat).then(function (res) {
-            console.log(res);
+            ctrl.loading = false;
+            ctrl.showPay = true;
+            ctrl.mySeat = seat;
         }).catch(function (err) {
-            ctrl.errorMessage = "Could not fetch planes, please reload.";
+            ctrl.loading = false;
+            ctrl.showSeats = true;
+            ctrl.errorMessage = err.data.message;
         });
-
+    };
+    
+    ctrl.didPay = function () {
+        ctrl.showPay = false;
+        ctrl.true = false;
+        CheckIn.checkIntoPlane(ctrl.mySeat).then(function (res) {
+            console.log(res);
+            ctrl.loading = false;
+        }).catch(function (err) {
+            ctrl.loading = false;
+            ctrl.showSeats = true;
+            ctrl.errorMessage = err.data.message;
+        });
     };
 
-    // ctrl.seats = [[]];
-    // ctrl.currentPlane.seats.forEach(function(seat) {
-    //     if (seat.row && seat.col) {
-    //         console.log(seat);
-    //         console.log(ctrl.seats);
-    //         ctrl.seats[seat.col - 1][seat.row -1] = seat;
-    //         console.log(ctrl.seats[seat.row - 1][seat.col -1]);
-    //     }
-    // });
-    // console.log(ctrl.seats);
 }
 
 angular.module('myApp').component('planeChoose', {

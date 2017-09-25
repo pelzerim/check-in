@@ -20,7 +20,6 @@ var Passenger = new Schema({
 });
 
 var Seat = new Schema({
-    id: Schema.Types.ObjectId,
     nr: {
         type: String
     },

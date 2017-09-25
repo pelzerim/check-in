@@ -28,4 +28,14 @@ module.exports = function(app) {
         .get(checkInController.read_seat)
         .put(checkInController.update_seat);
 
+
+    // DEBUG
+    // /plane/{planeId}/seats route: Get all seats
+    app.route('/seats')
+        .get(checkInController.list_all_the_seats);
+    // DEBUG
+    // /plane/{planeId}/seats route: Get all seats
+    app.route('/login')
+        .get(checkInController.login);
+
 };

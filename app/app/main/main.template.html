@@ -1,6 +1,7 @@
 <h1>Superair - Check in</h1>
-<p>Welcome {{ currentPassanger.name }}</p>
-<p ng-show="currentPlane">You are now checking into flight {{currentPlane.name}}</p>
+
+<p>Welcome {{ currentPassanger.name }} <a ng-click="home()" ng-show="currentPlane">(go to plane view)</a></p>
+<p ng-show="currentPlane">You are now checking into flight {{currentPlane.name}} </p>
 
 <plane-list ng-if="!currentPlane" on-selected-plane="showPlane()"></plane-list>
 <plane-choose ng-if="currentPlane" ></plane-choose>

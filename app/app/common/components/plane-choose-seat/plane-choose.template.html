@@ -1,4 +1,4 @@
-<h5>Choose seat</h5>
+<h5>Purchase seat</h5>
 <div class="errorMessage"> {{ $ctrl.errorMessage }} </div>
 
 <ul ng-show="$ctrl.showSeats">
@@ -8,3 +8,6 @@
 </ul>
 
 <div ng-show="$ctrl.loading">Loading...</div>
+
+<pay ng-show="$ctrl.showPay" on-did-pay="$ctrl.didPay()"></pay>
+

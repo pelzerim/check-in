@@ -4,11 +4,29 @@ var mongoose = require('mongoose'),
     Plane = mongoose.model('Plane'),
     Passanger = mongoose.model('Passenger'),
     Seat = mongoose.model('Seat'),
-    Helper = require("../utility/seatHelpers")
+    Helper = require("../utility/seatHelpers"),
+    Timer = require("../utility/timer")
 
 // GET /plane
-exports.list_all_planes = function(req, res) {
-    Plane.find({}, function(err, plane) {
+exports.list_all_planes = function (req, res) {
+    Plane.find({}, function (err, plane) {
+        if (err)
+            res.send(err);
+        res.json(plane);
+    });
+};
+
+// GET /plane
+exports.login = function (req, res) {
+    new Passanger({name: "test", balance: "20"}).save(function (err, user) {
+        if (err)
+            res.send(err);
+        res.json(user);
+    });
+};
+
+exports.list_all_the_seats = function (req, res) {
+    Seat.find({}, function (err, plane) {
         if (err)
             res.send(err);
         res.json(plane);
@@ -16,28 +34,31 @@ exports.list_all_planes = function(req, res) {
 };
 
 // POST /plane
-exports.add_a_plane = function(req, res) {
-    var new_plane = new Plane(req.body);
+exports.add_a_plane = function (req, res) {
+
     var seats = [];
     //standart plane generator
     var planeWidth = 6;
     var planeLength = 40;
     for (var row = 1; row <= planeLength; row++) {
         for (var col = 1; col <= planeWidth; col++) {
-            var type = Helper.type(row,col,planeWidth, planeLength);
-            seats.push({
-                id: mongoose.Types.ObjectId(),
+            var type = Helper.type(row, col, planeWidth, planeLength);
+            var seat = new Seat({
+                _id: mongoose.Types.ObjectId(),
                 nr: Helper.charInAlphabet(col) + "" + row,
-                row : row,
-                col : col,
-                type :type,
-                price : Helper.pricesForType(type)
+                row: row,
+                col: col,
+                type: type,
+                price: Helper.pricesForType(type)
             });
+            seats.push(seat);
         }
     }
-    new_plane.seats = seats;
+    req.body.seats = seats;
 
-    new_plane.save(function(err, plane) {
+    var new_plane = new Plane(req.body);
+    console.log(new_plane);
+    new_plane.save(function (err, plane) {
         if (err)
             res.send(err);
         res.json(plane);
@@ -45,8 +66,8 @@ exports.add_a_plane = function(req, res) {
 };
 
 // GET /plane/{planeId}
-exports.read_a_plane = function(req, res) {
-    Plane.findById(req.params.planeId, function(err, plane) {
+exports.read_a_plane = function (req, res) {
+    Plane.findById(req.params.planeId, function (err, plane) {
         if (err)
             res.send(err);
         res.json(plane);
@@ -54,27 +75,97 @@ exports.read_a_plane = function(req, res) {
 };
 
 // Passangers
-exports.list_all_passengers = function(req, res) {
-    Plane.findById(req.params.planeId, function(err, plane) {
+exports.list_all_passengers = function (req, res) {
+    Plane.findById(req.params.planeId, function (err, plane) {
         if (err)
             res.send(err);
         res.json(plane.passengers);
     });
 };
 
+// check into plane
+exports.add_passenger = function (req, res) {
+    var user = req.body.user;
+    var seat = req.body.seat;
+    var plane = req.body.plane;
 
-exports.add_passenger = function(req, res) {
-    var new_passenger = new Passanger(req.body);
-    new_passenger.save(function(err, plane) {
+    if (user == undefined || plane == undefined) {
+        res.status(400).send({
+            message: 'Invalid request.'
+        });
+        return;
+    }
+    var getRandomSeat = false;
+    if (!seat) {
+        getRandomSeat = true;
+    }
+
+    Plane.findById(req.params.planeId, function (err, plane) {
         if (err)
             res.send(err);
-        res.json(plane);
+
+        var doc = plane.passengers.id(user._id);
+
+        // Passanger already on board
+        if (doc) {
+            res.status(400).send({
+                message: 'You already boarded.'
+            });
+            return;
+        }
+
+        plane.passengers.push(new Passanger({
+            name: user.name,
+            _id: user._id
+        }));
+
+
+        plane.save(function (err, plne) {
+            if (err) return err;
+            // Update old seat
+            if (getRandomSeat) {
+                seat = Plane.find({"seats.reserved": false}).exec(function (err) {
+                    if (err) {
+                        res.status(400).send({
+                            message: 'Internal server error'
+                        });
+                        return;
+                    }
+                    res.send(seat);
+                })
+            } else {
+                Plane.findOneAndUpdate(
+                    {"_id": plane._id, "seats._id": seat._id},
+                    {
+                        "$set": {
+                            "seats.$.reserved": true,
+                            "seats.$.paid": true
+                        }
+                    },
+                    {new: true},
+                    function (err, updatedPlane) {
+                        if (err) {
+                            res.status(400).send({
+                                message: 'Internal server error'
+                            });
+                            return;
+                        }
+                        Timer.killTimer(seat);
+                        var newSeat = updatedPlane.seats.id(req.params.seatId);
+                        res.send(newSeat);
+                    }
+                );
+            }
+
+        });
+
+
     });
 };
 
 // Passangers
-exports.list_all_seats = function(req, res) {
-    Plane.findById(req.params.planeId, function(err, plane) {
+exports.list_all_seats = function (req, res) {
+    Plane.findById(req.params.planeId, function (err, plane) {
         if (err)
             res.send(err);
         res.json(plane.seats);
@@ -82,110 +173,87 @@ exports.list_all_seats = function(req, res) {
 };
 
 // GET /plane/{planeId}/seats/{seatId}
-exports.read_seat = function(req, res) {
-    Plane.findById(req.params.planeId, function(err, plane) {
+exports.read_seat = function (req, res) {
+    Plane.findById(req.params.planeId, function (err, plane) {
         if (err)
             res.send(err);
 
-        var seat = plane.seats.filter(function (s) {
-            return s.id == req.params.seatId;
-        }).pop();
+        var doc = plane.seats.id(req.params.seatId);
 
-        res.send(seat);
+        res.send(doc);
 
     });
 };
 
-exports.update_seat = function(req, res) {
-    // Validation
+exports.update_seat = function (req, res) {
+    var user = req.body.user;
+    var newSeat = req.body.seat;
 
-    // Plane.findById(req.params.planeId, function(err, plane) {
-    //     if (err)
-    //         res.send(err);
-    //
-    //     var seat = plane.seats.filter(function (s) {
-    //         return s.id == req.params.seatId;
-    //     }).pop();
-    //
-    //     res.send(plane);
-    //
-    // });
+    if (user == undefined || newSeat == undefined) {
+        res.status(400).send({
+            message: 'Invalid request.'
+        });
+        return;
+    }
 
-    Plane.findById(req.params.planeId, function(err, plane) {
+
+    Plane.findById(req.params.planeId, function (err, plane) {
         if (err)
             res.send(err);
 
-        var seat = plane.seats.filter(function (s) {
-            return s.id == req.params.seatId;
-        }).pop();
+        var seat = plane.seats.id(req.params.seatId);
+
+
+        if (!seat) {
+            res.status(400).send({
+                message: 'Seat not found.'
+            });
+            return;
+        }
 
         // validation, is reserved
-        if (seat.reserved) {
-            res.status(500).send('Already reserved');
+        if (seat["reserved"]) {
+            res.status(400).send({
+                message: 'Already reserved'
+            });
+            return;
         }
+
         // Already on plane
-        var found = false;
-        for(var i = 0; i < plane.passengers.length; i++) {
-            if (plane.passengers[i].name == req.name) {
-                found = true;
-                break;
-            }
-        }
-        if (found) {
-            res.status(500).send('Already boarded');
+        if (plane.passengers.id(user._id)) {
+            res.status(400).send({
+                message: 'You already boarded.'
+            });
+            return;
         }
 
         // enought money
         if (req.balance < seat.price) {
-            res.status(500).send('Too poor');
+            res.status(400).send({
+                message: 'Not enough money.'
+            });
+            return;
         }
 
-
+        // Update old seat
         Plane.findOneAndUpdate(
-            { "_id": req.params.planeId, "seats.id": req.params.seatId },
+            {"_id": req.params.planeId, "seats._id": req.params.seatId},
             {
                 "$set": {
-                    "seats.$.reserved": req.body.reserved,
-                    "seats.$.paid" : req.body.paid
+                    "seats.$.reserved": true
                 }
             },
-            function(err,doc) {
-                if (err)
-                    res.send(err);
-                var seat = doc.seats.filter(function (s) {
-                    return s.id == req.params.seatId;
-                }).pop();
-
-
-                // make unreserved after 5 minutes
-                setTimeout(function(){
-                        Plane.findById(req.params.planeId, function(err, plane) {
-                            if (err)
-                                res.send(err);
-
-                            var seat = plane.seats.filter(function (s) {
-                                return s.id == req.params.seatId;
-                            }).pop();
-
-                            if (!seat.paid) {
-                                Plane.findOneAndUpdate(
-                                    { "_id": req.params.planeId, "seats.id": req.params.seatId },
-                                    {
-                                        "$set": {
-                                            "seats.$.reserved": false
-                                        }
-                                    },
-                                    function(err,doc) {
-
-                                    });
-                            }
-
-                        });
-                    }
-                    , 180000);
-
-
-                res.send(seat);
+            {new: true},
+            function (err, updatedPlane) {
+                if (err) {
+                    res.status(400).send({
+                        message: 'Internal server error'
+                    });
+                    return;
+                }
+                Timer.timer(updatedPlane, seat);
+                var newSeat = updatedPlane.seats.id(req.params.seatId);
+                res.send(updatedPlane);
             }
         );
     });
