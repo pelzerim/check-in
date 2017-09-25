@@ -1,16 +1,23 @@
 /**
  * Created by immanuelpelzer on 24.09.17.
  */
-PlaneListCtrl.$inject = ['CheckIn']; // e.g. 'Chat'
+PlaneListCtrl.$inject = ['CheckIn', '$scope']; // e.g. 'Chat'
 
-function PlaneListCtrl (CheckIn) { // e.g. (Chat)
+function PlaneListCtrl (CheckIn,$scope) { // e.g. (Chat)
     var ctrl = this;
 
-    CheckIn.getPlanes().then(function (res) {
-        ctrl.planes = res.data;
-        ctrl.errorMessage ="";
-    }).catch(function (err) {
-        ctrl.errorMessage = "Could not fetch planes, please reload.";
+    ctrl.loadPlanes = function () {
+        CheckIn.getPlanes().then(function (res) {
+            ctrl.planes = res.data;
+            ctrl.errorMessage ="";
+        }).catch(function (err) {
+            ctrl.errorMessage = "Could not fetch planes, please reload.";
+        });
+    };
+    ctrl.loadPlanes();
+
+    $scope.$on("loadNewPlanes",function(){
+        ctrl.loadPlanes();
     });
 
     ctrl.selectPlane = function(plane) {

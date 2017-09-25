@@ -3,5 +3,8 @@
 <p>Welcome {{ currentPassanger.name }} <a ng-click="home()" ng-show="currentPlane">(go to plane view)</a></p>
 <p ng-show="currentPlane">You are now checking into flight {{currentPlane.name}} </p>
 
+<h5 ng-if="!currentPlane">Choose plane to board</h5>
 <plane-list ng-if="!currentPlane" on-selected-plane="showPlane()"></plane-list>
+
+<h5 ng-if="currentPlane">Purchase seat</h5>
 <plane-choose ng-if="currentPlane" ></plane-choose>

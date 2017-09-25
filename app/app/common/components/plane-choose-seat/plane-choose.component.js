@@ -56,5 +56,8 @@ function PlaneChooseCtrl (CheckIn, socket) { // e.g. (Chat)
 
 angular.module('myApp').component('planeChoose', {
     templateUrl: 'common/components/plane-choose-seat/plane-choose.template.html',
-    controller: PlaneChooseCtrl
+    controller: PlaneChooseCtrl,
+    bindings :{
+        asAdmin : '<'
+    }
 });

@@ -45,7 +45,6 @@ angular.module('myApp')
         function getRandomPerson() {
             return $http.get(urlBase+'/login/').then(function (user) {
                 CheckIn.currentPassanger = user.data;
-                console.log(CheckIn.currentPassanger);
                 $rootScope.$broadcast('user:updated',user.data);
             });
         };

@@ -1,0 +1,13 @@
+<h1>Admin</h1>
+
+<p>Welcome {{ currentPassanger.name }} <a ng-click="home()" ng-show="currentPlane">(go to plane view)</a></p>
+
+<form ng-submit="addPlane(newPlane)">
+    Add plane named: <input type="text" name="fname" ng-model="newPlane.name">
+    <input type="submit" value="Add Plane">
+</form>
+
+<p ng-show="currentPlane">You are now changing flight {{currentPlane.name}} </p>
+
+<plane-list ng-if="!currentPlane" on-selected-plane="showPlane()"></plane-list>
+<plane-choose ng-if="currentPlane" as-admin="true"></plane-choose>

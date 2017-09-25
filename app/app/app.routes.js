@@ -9,5 +9,10 @@ angular.module('myApp')
             controller: 'MainCtrl'
         });
 
+        $routeProvider.when('/admin', {
+            templateUrl: 'admin/admin.template.html',
+            controller: 'AdminCtrl'
+        });
+
         $routeProvider.otherwise({redirectTo: '/checkin'});
     }]);
