@@ -45,4 +45,13 @@ The REST Api should be able to serve the following endpoints:
  
 ![](images/ApiClassDiagram.png )
 
-## 
+## Passenger check-in flow
+
+The passanger will first select a plane. After that he is presented with the seats on that plane. He can pick a seat, which will be reserved for him for 3 minutes. If the passenger pays before that timeline, the seat will be assigned to this passanger. A passanger could alternatively choose to get a random seat.
+
+Sequence diagram for choosing your own seat:
+![](images/SequenceDiagram.png )
+
+Sequence diagram for choosing your own seat:
+![](images/SequenceDiagramNoPick.png )
+
