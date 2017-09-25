@@ -9,9 +9,7 @@ const port = process.env.PORT || 7000;
 
 
 // Model
-var Plane = require('./app/models/planeModel');
-var Passanger = require('./app/models/passengerModel');
-var Seat = require('./app/models/seatModel');
+var Model = require('./app/models/model');
 
 // Enable CORS for development
 app.use(cors());
@@ -34,6 +32,13 @@ app.all('/*', function(req, res, next) {
 // Register routes
 var routes = require('./app/routes/planeRoutes');
 routes(app);
+
+// 404 handling
+app.use(function(req, res) {
+    res.status(404).send(
+        {url: req.originalUrl + ' was not found'}
+        )
+});
 
 app.listen(port, () => {
     console.log('Listening to port ' + port);
