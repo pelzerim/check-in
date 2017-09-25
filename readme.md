@@ -1,8 +1,9 @@
 ## Checkin
 
-To start the node server (in backend)
+To start the node server (in backend).
 
 - npm install
+- mongod 
 - npm run dev
 
 
