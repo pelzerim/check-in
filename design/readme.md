@@ -1,4 +1,4 @@
-# Check-in 
+# Check-in design document
 
 This application shall let users check into a plane from a client application.
 
@@ -30,3 +30,19 @@ The database is gonna be made up of a list of planes and passangers. The planes 
 
 ## REST API Design
 
+The REST Api should be able to serve the following endpoints:
+
+- GET /planes - Return all planes
+- GET /planes/{{planeId}} - Return plane with id
+- POST /planes/{{planeId}}/passangers - Add passanger to plane
+- GET /planes/{{planeId}}/seats - Get all Seats of a plane
+- PUT /planes/{{planeId}}/seats/{{seatId}} - Modify seat on a plane. This route should also check for the following contraints: 
+    - Passanger not already on plane.
+    - Seat not reserved
+    - Passanger has enought balance to pay
+- GET /planes/{{planeId}}/seats/{{seatId}} - Get a single seat on a plane
+- GET /planes/{{planeId}}/passangers - Get all passangers for plane
+ 
+![](images/ApiClassDiagram.png )
+
+## 
