@@ -7,14 +7,14 @@ function PlaneListCtrl (CheckIn) { // e.g. (Chat)
     var ctrl = this;
 
     CheckIn.getPlanes().then(function (res) {
-        console.log(res.data);
         ctrl.planes = res.data;
     }).catch(function (err) {
         ctrl.errorMessage = "Could not fetch planes, please reload.";
     });
 
     ctrl.selectPlane = function(plane) {
-        ctrl.onSelectedPlane(plane);
+        CheckIn.currentPlane = plane;
+        ctrl.onSelectedPlane();
     }
 }
 

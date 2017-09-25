@@ -4,10 +4,16 @@
 
 angular.module('main', [])
     .controller('MainCtrl',
-        ['$scope', // injections
+        ['$scope', 'CheckIn', // injections
         MainCtrl]
     );
 
-function MainCtrl($scope) {
+function MainCtrl($scope, CheckIn) {
+    $scope.currentPlane;
 
+    $scope.currentPassanger = CheckIn.currentPassanger;
+
+    $scope.showPlane = function () {
+        $scope.currentPlane = CheckIn.currentPlane;
+    }
 }

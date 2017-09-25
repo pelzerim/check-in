@@ -20,10 +20,10 @@ exports.add_a_plane = function(req, res) {
     var new_plane = new Plane(req.body);
     var seats = [];
     //standart plane generator
-    var planeWidth =6;
+    var planeWidth = 6;
     var planeLength = 40;
-    for (var row = 1; row <= planeWidth; row++) {
-        for (var col = 1; col <= planeLength; col++) {
+    for (var row = 1; row <= planeLength; row++) {
+        for (var col = 1; col <= planeWidth; col++) {
             var type = Helper.type(row,col,planeWidth, planeLength);
             seats.push({
                 nr: Helper.charInAlphabet(col) + "" + row,
@@ -93,11 +93,11 @@ exports.read_seat = function(req, res) {
 
 exports.update_seat = function(req, res) {
     // Validation
-    Task.findOneAndUpdate(
-        {_id: req.params.seatId}, req.body, {new: true}, function(err, task) {
+    Seat.findOneAndUpdate(
+        {_id: req.params.seatId}, req.body, {new: true}, function(err, seat) {
         if (err)
             res.send(err);
-        res.json(task);
+        res.json(seat);
     });
 };
 

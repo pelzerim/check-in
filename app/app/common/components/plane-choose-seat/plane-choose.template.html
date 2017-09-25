@@ -1,0 +1,10 @@
+<h5>Choose seat</h5>
+<div class="errorMessage"> {{ $ctrl.errorMessage }} </div>
+
+<ul ng-show="$ctrl.showSeats">
+    <li ng-repeat="seat in $ctrl.currentPlane.seats">
+        {{seat.nr}}: {{ seat.type[0] }} for only {{seat.price}} <a ng-show="!seat.reserved" ng-click="$ctrl.reserveSeat(seat)">Choose seat</a>
+    </li>
+</ul>
+
+<div ng-show="$ctrl.loading">Loading...</div>

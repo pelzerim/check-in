@@ -10,11 +10,10 @@ function EmptyCtrl (User, StudentDataOp) { // e.g. (Chat)
         ctrl.show = "super";
     }).catch(function (err) {
         ctrl.show = "err";
-    })
+    });
 
     ctrl.show = "nothing";
     ctrl.stuff = function() {
-
         // var user = new User();
         // user.firstName = "bla";
         // user.lastName = "blubb";

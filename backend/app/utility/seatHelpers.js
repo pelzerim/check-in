@@ -21,7 +21,7 @@ exports.pricesForType = function(type) {
 };
 
 exports.type = function(row,col, width, lenght) {
-    if ((col % 5) == 0) { // Every fifth col is ailse
+    if ((row % 5) == 0) { // Every fifth col is ailse
         return 'leg'
     } else if (row == 0 ||row == width -1) { // first and list is window
         return 'window';
