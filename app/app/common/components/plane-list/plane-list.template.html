@@ -1,0 +1,7 @@
+<h5>Choose plane to board</h5>
+<div class="errorMessage"> {{ $ctrl.errorMessage }} </div>
+<ul>
+    <li ng-repeat="plane in $ctrl.planes ">
+        <a ng-click="$ctrl.selectPlane(plane)">{{plane.name}}</a>
+    </li>
+</ul>

@@ -78,8 +78,6 @@ var Plane = new Schema({
     seats: [Seat]
 });
 
-
-
 module.exports = mongoose.model('Seat', Seat);
 module.exports = mongoose.model('Passenger', Passenger);
 module.exports = mongoose.model('Plane', Plane);
